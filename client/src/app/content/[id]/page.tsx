@@ -19,7 +19,7 @@ export default function ContentDetails() {
             const { data } = await apiClient.get(`/content/${id}`);
             return data;
         },
-        enabled: !!id && !!user,
+        enabled: !!id, // Removed !!user to allow guest viewing
     });
 
     const copyToClipboard = () => {
@@ -103,7 +103,7 @@ export default function ContentDetails() {
                             <div className="flex items-center gap-2">
                                 <Sparkles className="w-4 h-4 text-yellow-500" />
                                 <span className={`font-semibold ${content.sentimentLabel === 'Positive' ? 'text-green-400' :
-                                        content.sentimentLabel === 'Negative' ? 'text-red-400' : 'text-zinc-400'
+                                    content.sentimentLabel === 'Negative' ? 'text-red-400' : 'text-zinc-400'
                                     }`}>
                                     {content.sentimentLabel} Sentiment ({Math.round(content.sentimentScore * 100)}%)
                                 </span>
@@ -120,7 +120,91 @@ export default function ContentDetails() {
                     </div>
                 </article>
 
-                <footer className="mt-16 text-center">
+                {/* Comments Section */}
+                <section className="mt-16 border-t border-zinc-800 pt-16">
+                    <h2 className="text-2xl font-bold mb-8 flex items-center gap-2">
+                        Comments
+                        <span className="text-sm font-normal text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full">
+                            {content.comments?.length || 0}
+                        </span>
+                    </h2>
+
+                    {/* Comment Form */}
+                    <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6 mb-12">
+                        <h3 className="text-sm font-semibold text-zinc-400 mb-4 uppercase tracking-wider">Post a comment as guest</h3>
+                        <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            const name = formData.get('name') as string;
+                            const body = formData.get('body') as string;
+
+                            if (!name || !body) return toast.error('Please fill in all fields');
+
+                            const loadingToast = toast.loading('Analyzing and posting comment...');
+                            try {
+                                await apiClient.post(`/content/${id}/comments`, { name, body });
+                                toast.success('Comment posted successfully!', { id: loadingToast });
+                                (e.target as HTMLFormElement).reset();
+                                // Refetch content to show the new comment
+                                router.refresh();
+                                window.location.reload();
+                            } catch (err) {
+                                toast.error('Failed to post comment', { id: loadingToast });
+                            }
+                        }} className="space-y-4">
+                            <input
+                                name="name"
+                                type="text"
+                                placeholder="Your Name"
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                            />
+                            <textarea
+                                name="body"
+                                placeholder="Write your thoughts..."
+                                rows={3}
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
+                            ></textarea>
+                            <button className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-bold transition-all ml-auto block">
+                                Post Comment
+                            </button>
+                        </form>
+                    </div>
+
+                    {/* Comments List */}
+                    <div className="space-y-6">
+                        {content.comments?.length > 0 ? (
+                            content.comments.map((comment: any, idx: number) => (
+                                <div key={idx} className="bg-zinc-900/20 border border-zinc-800/30 rounded-2xl p-6 transition-all hover:border-zinc-700/50">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold">
+                                                {comment.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-semibold text-sm">{comment.name}</h4>
+                                                <p className="text-[10px] text-zinc-500">{new Date(comment.createdAt).toLocaleString()}</p>
+                                            </div>
+                                        </div>
+                                        {comment.sentimentLabel && (
+                                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter ${comment.sentimentLabel === 'Positive' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                                                comment.sentimentLabel === 'Negative' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                                                    comment.sentimentLabel === 'Analyzing...' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 animate-pulse' :
+                                                        'bg-zinc-500/10 text-zinc-400 border border-zinc-500/20'
+                                                }`}>
+                                                {comment.sentimentLabel}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-zinc-400 text-sm leading-relaxed">{comment.body}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-center text-zinc-600 py-8 italic">No comments yet. Be the first to share your thoughts!</p>
+                        )}
+                    </div>
+                </section>
+
+                <footer className="mt-24 text-center">
                     <p className="text-zinc-600 text-sm mb-6 italic">
                         Generated by AI • Content ID: {content._id}
                     </p>

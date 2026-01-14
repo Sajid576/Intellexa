@@ -16,13 +16,13 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 
 @Controller('content')
-@UseGuards(JwtAuthGuard)
 export class ContentController {
   constructor(
     private readonly contentService: ContentService,
     @InjectQueue('content-generation') private contentQueue: Queue,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post('generate')
   async generate(@Body() data: { prompt: string; type: string; title: string }, @Request() req) {
     // 1. Create a pending record in the database
@@ -54,6 +54,7 @@ export class ContentController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   findAll(@Request() req, @Query('search') search: string) {
     return this.contentService.findAll(req.user.userId, search);
@@ -61,16 +62,28 @@ export class ContentController {
 
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req) {
-    return this.contentService.findOne(id, req.user.userId);
+    // If user is logged in, we can still pass their ID for potentially restricted content, 
+    // but for guest users, req.user will be undefined.
+    return this.contentService.findOne(id, req.user?.userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateData: any) {
     return this.contentService.update(id, updateData);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string, @Request() req) {
     return this.contentService.remove(id, req.user.userId);
+  }
+
+  @Post(':id/comments')
+  addComment(
+    @Param('id') id: string,
+    @Body() data: { name: string; body: string },
+  ) {
+    return this.contentService.addComment(id, data.name, data.body);
   }
 }

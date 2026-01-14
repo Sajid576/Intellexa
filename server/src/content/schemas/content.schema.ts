@@ -26,6 +26,27 @@ export class Content extends Document {
 
   @Prop()
   sentimentLabel?: string;
+
+  @Prop({
+    type: [
+      {
+        name: { type: String, required: true },
+        body: { type: String, required: true },
+        sentimentScore: { type: Number },
+        sentimentLabel: { type: String },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+    default: [],
+  })
+  comments: {
+    _id?: any;
+    name: string;
+    body: string;
+    sentimentScore: number;
+    sentimentLabel: string;
+    createdAt: Date;
+  }[];
 }
 
 export const ContentSchema = SchemaFactory.createForClass(Content);
