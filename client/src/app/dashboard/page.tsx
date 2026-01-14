@@ -85,25 +85,30 @@ export default function Dashboard() {
                                         {item.type}
                                     </span>
                                     <button
-                                        onClick={() => deleteContent(item._id)}
-                                        className="p-2 text-zinc-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            deleteContent(item._id);
+                                        }}
+                                        className="p-2 text-zinc-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 z-10"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </button>
                                 </div>
-                                <h3 className="text-xl font-bold mb-2 line-clamp-1">{item.title}</h3>
-                                <p className="text-zinc-400 text-sm line-clamp-3 mb-4">{item.body}</p>
+                                <Link href={`/content/${item._id}`} className="block group/link">
+                                    <h3 className="text-xl font-bold mb-2 line-clamp-1 group-hover/link:text-blue-400 transition-colors">{item.title}</h3>
+                                    <p className="text-zinc-400 text-sm line-clamp-3 mb-4">{item.body}</p>
+                                </Link>
                                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-zinc-800/50">
                                     <div className="flex items-center gap-2">
                                         <span className={`w-2 h-2 rounded-full ${item.status === 'completed' ? 'bg-green-500' :
-                                                item.status === 'pending' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'
+                                            item.status === 'pending' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'
                                             }`} />
                                         <span className="text-xs text-zinc-500 capitalize">{item.status}</span>
                                     </div>
                                     {item.sentimentLabel && (
                                         <span className={`text-xs px-2 py-0.5 rounded ${item.sentimentLabel === 'Positive' ? 'bg-green-500/10 text-green-400' :
-                                                item.sentimentLabel === 'Negative' ? 'bg-red-500/10 text-red-400' :
-                                                    'bg-zinc-500/10 text-zinc-400'
+                                            item.sentimentLabel === 'Negative' ? 'bg-red-500/10 text-red-400' :
+                                                'bg-zinc-500/10 text-zinc-400'
                                             }`}>
                                             {item.sentimentLabel}
                                         </span>

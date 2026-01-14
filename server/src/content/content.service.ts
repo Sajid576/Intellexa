@@ -20,9 +20,9 @@ export class ContentService {
     return this.contentModel.find(query).sort({ createdAt: -1 }).exec();
   }
 
-  async findOne(id: string): Promise<Content> {
-    const content = await this.contentModel.findById(id).exec();
-    if (!content) throw new NotFoundException('Content not found');
+  async findOne(id: string, userId: string): Promise<Content> {
+    const content = await this.contentModel.findOne({ _id: id, userId }).exec();
+    if (!content) throw new NotFoundException('Content not found or access denied');
     return content;
   }
 
@@ -34,8 +34,8 @@ export class ContentService {
     return updatedContent;
   }
 
-  async remove(id: string): Promise<void> {
-    const result = await this.contentModel.findByIdAndDelete(id).exec();
-    if (!result) throw new NotFoundException('Content not found');
+  async remove(id: string, userId: string): Promise<void> {
+    const result = await this.contentModel.findOneAndDelete({ _id: id, userId }).exec();
+    if (!result) throw new NotFoundException('Content not found or access denied');
   }
 }

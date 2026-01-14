@@ -60,8 +60,8 @@ export class ContentController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.contentService.findOne(id);
+  findOne(@Param('id') id: string, @Request() req) {
+    return this.contentService.findOne(id, req.user.userId);
   }
 
   @Patch(':id')
@@ -70,7 +70,7 @@ export class ContentController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.contentService.remove(id);
+  remove(@Param('id') id: string, @Request() req) {
+    return this.contentService.remove(id, req.user.userId);
   }
 }
