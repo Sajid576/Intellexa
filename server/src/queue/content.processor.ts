@@ -22,14 +22,14 @@ export class ContentProcessor extends WorkerHost {
       const generatedBody = await this.aiService.generateContent(prompt, type);
       
       // 2. Perform sentiment analysis (secondary AI feature)
-      // const sentiment = await this.aiService.analyzeSentiment(generatedBody);
+      const sentiment = await this.aiService.analyzeSentiment(generatedBody);
 
       // 3. Update database
       await this.contentService.update(contentId, {
         body: generatedBody,
         status: 'completed',
-        // sentimentScore: sentiment.score,
-        // sentimentLabel: sentiment.label,
+        sentimentScore: sentiment.score,
+        sentimentLabel: sentiment.label,
       });
 
       // 4. Notify user via WebSocket

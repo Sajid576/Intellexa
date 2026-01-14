@@ -42,6 +42,10 @@ graph TD
 ### 4. AI Enhancement: Sentiment Analysis
 - Every piece of generated content undergoes a secondary AI pass to determine its sentiment (Positive, Neutral, Negative) and score, displayed on the dashboard cards.
 
+### 5. Content Details Page
+- Users can click on any card in the dashboard to view the full content on a dedicated details page.
+- The page includes metadata, sentiment breakdown, and a "Copy to Clipboard" feature for easy use of the generated text.
+
 ## 🧪 Verification & Proof of Work
 
 ### Backend Unit Tests
@@ -62,3 +66,10 @@ docker-compose up --build
 2. UI shows "Job queued! Please wait 1 minute...".
 3. After exactly 60s, the worker picks up the job.
 4. UI automatically navigates to the dashboard or shows a "Success" toast once the WebSocket event is received.
+
+### 5. Sentiment Analysis Verification
+You can verify the sentiment analysis by using targeted prompts:
+- **Positive**: "A joyful day at the park."
+- **Negative**: "A dark storm at sea."
+- **Neutral**: "How a refrigerator works."
+All results will be displayed on the **Details Page** and the **Dashboard** cards.
